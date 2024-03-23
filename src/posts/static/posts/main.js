@@ -1,31 +1,62 @@
-console.log('hello world')
 
-const helloWorldBox = document.getElementById('hello-world')
 const postsBox = document.getElementById('posts-box')
+const spinnerBox = document.getElementById('spinner-box')
+const loadBtn = document.getElementById('load-btn')
+const endBox = document.getElementById('end-box')
 
-$.ajax({
-  type: 'GET',
-  url: '/hello-world/',
-  success: (response) => {
-    console.log('success', response.text)
-    helloWorldBox.textContent = response.text;
-  },
-  error: (error) => console.log('error', error)
+let visible = 3
+
+const getData = () =>{
+  $.ajax({
+    type: 'GET',
+    url: `/data/${visible}`,
+    success: (response) => {
+      console.log(response)
+      const data = response.data
+      // show the data after 1000 milliseconds
+      setTimeout(()=>{
+        spinnerBox.classList.add('not-visible')
+        console.log(data)
+        data.forEach((item)=>{
+          postsBox.innerHTML += `
+            <div class="card mb-2">
+              <div class="card-body">
+                <h5 class="card-title">${item.title}</h5>
+                <p class="card-text">${item.body}</p>
+              </div>
+              <div class='card-footer'>
+                <div class='row'>
+                  <div class='col-1'>
+                    <a href="#" class="btn btn-primary">Details</a>
+                  </div>
+                  <div class='col-1'>
+                    <a href="#" class="btn btn-primary">Like</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `
+        })
+      }, 100)
+      console.log(response.size)
+      if (response.size === 0){
+        endBox.textContent = 'No posts added yet ....' 
+      }
+      else if(response.size <= visible){
+        loadBtn.classList.add('not-visible')
+        endBox.textContent = 'No more posts'
+      } 
+    },
+    error: (error) => console.log('error', error)
+  
+  })
+}
+
+
+loadBtn.addEventListener('click', ()=>{
+  spinnerBox.classList.remove('not-visible')
+  visible += 3
+  getData()
 })
 
-$.ajax({
-  type: 'GET',
-  url: '/data/',
-  success: (response) => {
-    console.log(response)
-    const data = response.data
-    console.log(data)
-    data.forEach((item)=>{
-      postsBox.innerHTML += `
-        ${item.title} - <b>${item.body}</b><br>
-      `
-    })
-  },
-  error: (error) => console.log('error', error)
-
-})
+getData()
