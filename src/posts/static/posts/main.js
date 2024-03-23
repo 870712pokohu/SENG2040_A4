@@ -8,7 +8,7 @@ const title = document.getElementById('id_title')
 const body = document.getElementById('id_body')
 const alertBox = document.getElementById('alert-box')
 const csrf = document.getElementsByName('csrfmiddlewaretoken')
-console.log('csrf', csrf[0].value)
+const url  = window.location.href
 
 const getCookie = (name) => {
   let cookieValue = null;
@@ -26,6 +26,13 @@ const getCookie = (name) => {
   return cookieValue;
 }
 const csrftoken = getCookie('csrftoken');
+
+const deleted = localStorage.getItem('title')
+
+if(deleted){
+  handleAlerts('danger', `deleted "${deleted}"`)
+  localStorage.clear()
+}
 
 const likeUnlikePosts = () =>{
   const likeUnlikeForms = [...document.getElementsByClassName('like-unlike-forms')];
@@ -76,7 +83,7 @@ const getData = () =>{
               <div class='card-footer'>
                 <div class='row'>
                   <div class='col-2'>
-                    <a href="#" class="btn btn-primary">Details</a>
+                    <a href="${url}${item.id}" class="btn btn-primary">Details</a>
                   </div>
                   <div class='col-2'>
                     <form class='like-unlike-forms' data-form-id=${item.id}>
@@ -146,7 +153,9 @@ postForm.addEventListener('submit', e=>{
       `)
       likeUnlikePosts()
       $('#addPostModal').modal('hide')
+      postForm.reset()
       handleAlerts('success', 'new post added')
+
     },
     error: error => {
       console.log(error)
